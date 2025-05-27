@@ -26,6 +26,12 @@ export const GetRekamMedisBySantriID = async (id: string) => {
 export const getDetailRekamMedis = async (id: string) => {
   return api.get(`rekam_medis/id/${id}`)
 }
+export const GetTotalPelanggaran = async (id: string) => {
+  return api.get(`pelanggaran/total/${id}`)
+}
+export const GetTotalPelanggaranHariIni = async (id: string) => {
+  return api.get(`pelanggaran/total-hari-ini/${id}`)
+}
 
 
 export const getPresensiRFIDIn = async (id: number) => {

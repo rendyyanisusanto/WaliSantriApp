@@ -14,19 +14,15 @@
         </div>
         <div class="infoRow">
           <span class="label">Pelanggaran:</span>
-          <span class="value">{{ detail.pelanggaran }}</span>
+          <span class="value">{{detail.kode_tatib}} - {{ detail.tatib }}</span>
         </div>
         <div class="infoRow">
-          <span class="label">Tata Tertib:</span>
-          <span class="value">{{ detail.tatib }}</span>
+          <span class="label">Takzir:</span>
+          <span class="value">{{ detail.takzir }}</span>
         </div>
         <div class="infoRow">
           <span class="label">Keterangan:</span>
           <span class="value">{{ detail.kronologi }}</span>
-        </div>
-        <div class="infoRow">
-          <span class="label">Poin:</span>
-          <span class="value">{{ detail.poin }}</span>
         </div>
       </div>
     </div>
@@ -44,10 +40,10 @@ const route = useRoute()
 
 const detail = ref<{
   tanggal: string
+  kode_tatib : string
   tatib: string
-  pelanggaran: string
+  takzir: string
   kronologi: string
-  poin: number
   foto: string
 } | null>(null)
 
@@ -69,10 +65,10 @@ onMounted(async () => {
     const response = await getDetailPelanggaran(id)
     detail.value = {
       tanggal: response.data.tanggal,
-      pelanggaran: response.data.pelanggaran,
+      takzir: response.data.takzir,
+      kode_tatib : response.data.tatib.kode,
       tatib: response.data.tatib.nama,
       kronologi: response.data.kronologi,
-      poin: response.data.tatib.poin,
       foto: `${config.BASE_MEDIA_URL}/pelanggaran/${response.data.foto}`
     }
   } catch (err) {

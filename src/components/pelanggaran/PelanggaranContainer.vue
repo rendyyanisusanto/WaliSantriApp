@@ -9,8 +9,8 @@
           <div class="value">{{ totalPelanggaran }}</div>
         </div>
         <div class="statItem">
-          <div class="label">Total Poin</div>
-          <div class="value">{{ totalPoin }}</div>
+          <div class="label">Pelanggaran Hari Ini</div>
+          <div class="value">{{ totalPelanggaranHariIni }}</div>
         </div>
       </div>
     </div>
@@ -26,7 +26,7 @@
           >
             <div class="header">
               <div class="tanggal">{{ item.tanggal }}</div>
-              <div class="poin">Poin: {{ item.poin }}</div>
+              <div class="poin">Kategori: {{ item.kategori }}</div>
             </div>
             <div class="contentRow">
               <div class="fotoWrapper">
@@ -51,9 +51,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue"
+import { ref, onMounted } from "vue"
 import dayjs from "dayjs"
-import { setAuthToken, GetPelanggaranByID, getSantri } from '@/api'
+import { setAuthToken,GetTotalPelanggaran, GetTotalPelanggaranHariIni, GetPelanggaranByID, getSantri } from '@/api'
 
 import { useRouter } from 'vue-router'
 import config from '@/config/config'
@@ -61,15 +61,15 @@ const pelanggaranData = ref<{
   tanggal: string
   pelanggaran: string
   keterangan: string
+  kategori: string
   poin: number
   foto: string
 }>([])
 
 const router = useRouter()
-const totalPelanggaran = computed(() => pelanggaranData.value.length)
-const totalPoin = computed(() =>
-  pelanggaranData.value.reduce((sum, item) => sum + (item.tatib?.poin || 0), 0)
-)
+const totalPelanggaran = ref<number>(0)
+const totalPelanggaranHariIni = ref<number>(0)
+
 const showDetail = (item: any) => {
   console.log("Detail pelanggaran:", item.id)
   // Kamu bisa ganti ini jadi buka modal atau navigate ke halaman detail
@@ -85,12 +85,12 @@ onMounted(async () => {
 
     const response = await GetPelanggaranByID(santri.santri.id)
     const data = response.data
-
+    console.log(data)
     // mapping response ke format yang akan ditampilkan
     pelanggaranData.value = data.map((item: {
       id: number
       tanggal: string
-      tatib: { nama: string; poin: number }
+      tatib: { nama: string; poin: number, kategori_tatib: { nama: string }}
       kronologi: string
       foto: string
     }) => ({
@@ -99,8 +99,17 @@ onMounted(async () => {
       pelanggaran: item.tatib?.nama || "Tidak diketahui",
       keterangan: item.kronologi || "-",
       poin: item.tatib?.poin || 0,
+      kategori: item.tatib?.kategori_tatib?.nama || "-",
       foto: `${config.BASE_MEDIA_URL}/pelanggaran/${item.foto}` // sesuaikan path penyimpanan fotomu
-    }))
+    }
+  ))
+  // Ambil total pelanggaran
+    const totalRes = await GetTotalPelanggaran(santri.santri.id)
+    totalPelanggaran.value = totalRes.data.total
+
+    // Ambil total pelanggaran hari ini
+    const todayRes = await GetTotalPelanggaranHariIni(santri.santri.id)
+    totalPelanggaranHariIni.value = todayRes.data.total
   } catch (error) {
     console.error("Gagal mengambil data pelanggaran:", error)
   }
